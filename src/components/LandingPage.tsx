@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { LucideScanEye } from "lucide-react";
 
-import video from "../assets/WEBVideo (1).mp4"
+import video from "../assets/WEBVideo (1).mp4";
 
 import {
   Shield,
@@ -22,9 +22,6 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-             
-             
-            
               <LucideScanEye size={25} />
 
               <span className="text-xl font-bold text-gray-900">
@@ -48,7 +45,7 @@ const LandingPage = () => {
           </div>
         </div>
       </nav>
-      
+
       {/* Hero Section */}
       <section className="text-white">
         {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -80,18 +77,17 @@ const LandingPage = () => {
             </div>
           </div>
         </div> */}
-         <div className="relative w-full h-[400px] overflow-hidden">
-            <video
-              src={video}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-            />
+        <div className="relative w-full h-[400px] overflow-hidden">
+          <video
+            src={video}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+          />
         </div>
       </section>
-      
 
       {/* Why Infrastructure Protection Matters */}
       <section id="learn-more" className="py-20 bg-white">
@@ -277,7 +273,7 @@ const LandingPage = () => {
               <h3 className="text-lg font-semibold mb-4">Emergency Contact</h3>
               <div className="flex items-center space-x-2 text-gray-400">
                 <Phone className="h-4 w-4" />
-                <span>911 for emergencies</span>
+                <span>1011 for emergencies</span>
               </div>
             </div>
           </div>
