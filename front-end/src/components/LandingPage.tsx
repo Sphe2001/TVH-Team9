@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { LuScanEye } from "react-icons/lu";
+import { LucideScanEye } from "lucide-react";
+
 import video from "../assets/WEBVideo (1).mp4"
 
 import {
@@ -23,8 +24,8 @@ const LandingPage = () => {
             <div className="flex items-center space-x-2">
              
              
-            <LuScanEye size={35} />
-              
+            
+              <LucideScanEye size={25} />
 
               <span className="text-xl font-bold text-gray-900">
                 Incident Eye
