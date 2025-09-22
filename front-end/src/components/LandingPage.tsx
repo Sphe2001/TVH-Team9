@@ -1,5 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { LuScanEye } from "react-icons/lu";
+import video from "../assets/WEBVideo (1).mp4"
+
 import {
   Shield,
   Camera,
@@ -18,7 +21,11 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-blue-600" />
+             
+             
+            <LuScanEye size={35} />
+              
+
               <span className="text-xl font-bold text-gray-900">
                 Incident Eye
               </span>
@@ -40,10 +47,10 @@ const LandingPage = () => {
           </div>
         </div>
       </nav>
-
+      
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="text-white">
+        {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Protecting Our City's
@@ -71,8 +78,19 @@ const LandingPage = () => {
               </a>
             </div>
           </div>
+        </div> */}
+         <div className="relative w-full h-[400px] overflow-hidden">
+            <video
+              src={video}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
         </div>
       </section>
+      
 
       {/* Why Infrastructure Protection Matters */}
       <section id="learn-more" className="py-20 bg-white">
