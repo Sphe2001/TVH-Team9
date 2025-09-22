@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, LogOut, AlertTriangle, CheckCircle, Clock, MapPin, Camera, Users, TrendingUp } from 'lucide-react';
+import { Shield, LogOut, AlertTriangle, CheckCircle, Clock, MapPin, Camera, Users, TrendingUp, User, Phone, Eye
+ } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MapView from './MapView';
 
@@ -17,17 +18,21 @@ interface Incident {
   assignedTo?: string;
 }
 
+
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'investigating' | 'resolved'>('all');
+  
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
       return;
     }
+    
 
     // Mock incident data
     const mockIncidents: Incident[] = [
@@ -79,6 +84,11 @@ const Dashboard = () => {
     ];
 
     setIncidents(mockIncidents);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timer)
   }, [user, navigate]);
 
   const handleLogout = () => {
@@ -89,7 +99,7 @@ const Dashboard = () => {
   const filteredIncidents = incidents.filter(incident => 
     filter === 'all' || incident.status === filter
   );
-
+ const [currentTime, setCurrentTime] = useState(new Date());
   const stats = {
     total: incidents.length,
     pending: incidents.filter(i => i.status === 'pending').length,
@@ -100,7 +110,7 @@ const Dashboard = () => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'text-red-600 bg-red-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
+      case 'medium': return 'text-amber-600 bg-amber-50';
       case 'low': return 'text-green-600 bg-green-50';
       default: return 'text-gray-600 bg-gray-50';
     }
@@ -118,25 +128,31 @@ const Dashboard = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg--500">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Shield className="h-8 w-8 text-blue-600" />
+              <Eye className="h-8 w-8 text-primary" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">SafeGuard Dashboard</h1>
-                <p className="text-sm text-gray-600">{user.name} - {user.role.replace('_', ' ').toUpperCase()}</p>
+                <h1 className="text-xl font-bold text-foreground">Community Watch Center</h1>
+                <p className="text-sm text-muted-foreground">Human-Operated Security Monitoring</p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Logout</span>
-            </button>
+            <div className="flex items-center space-x-6">
+              <div className="text-right">
+                <p className="text-sm font-medium text-foreground">{currentTime.toLocaleTimeString()}</p>
+                <p className="text-xs text-muted-foreground">{currentTime.toLocaleDateString()}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md hover:bg-secondary"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -192,7 +208,58 @@ const Dashboard = () => {
               <h2 className="text-lg font-semibold text-gray-900">Incident Locations</h2>
             </div>
             <div className="p-6">
-              <MapView incidents={filteredIncidents} />
+              {/* <MapView incidents={filteredIncidents} /> */}
+              <div className="bg-card rounded-lg shadow-sm border border-border">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-lg font-semibold text-foreground">Patrol Coordination</h2>
+              <p className="text-sm text-muted-foreground">Manual dispatch and field coordination</p>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-secondary rounded-lg border border-border">
+                  <div className="flex items-center space-x-3">
+                    <User className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium text-foreground">Officer Johnson</p>
+                      <p className="text-sm text-muted-foreground">Main St Patrol - Active</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Radio: Ch 3</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-secondary rounded-lg border border-border">
+                  <div className="flex items-center space-x-3">
+                    <User className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium text-foreground">Officer Martinez</p>
+                      <p className="text-sm text-muted-foreground">Park Ave Patrol - Active</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Radio: Ch 2</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-secondary rounded-lg border border-border">
+                  <div className="flex items-center space-x-3">
+                    <User className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium text-muted-foreground">Officer Davis</p>
+                      <p className="text-sm text-muted-foreground">Industrial District - Off Duty</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Next: 6:00 AM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
             </div>
           </div>
 
@@ -257,3 +324,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+
