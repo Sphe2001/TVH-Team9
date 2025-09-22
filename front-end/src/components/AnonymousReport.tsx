@@ -1,106 +1,158 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Shield, MapPin, Camera, Send, AlertTriangle, CheckCircle, Upload } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Shield,
+  MapPin,
+  Camera,
+  Send,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
 
 const AnonymousReport = () => {
   const [formData, setFormData] = useState({
-    type: '',
-    location: '',
-    description: '',
-    priority: 'medium'
+    type: "",
+  
+    description: "",
+    priority: "medium",
   });
   const [images, setImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const navigate = useNavigate();
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const navigate = useNavigate();
+  
+
+  /* ---------- Camera Setup ---------- */
+  useEffect(() => {
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      } catch (err) {
+        console.error("Camera error:", err);
+      }
+    }
+    startCamera();
+    return () => {
+      if (videoRef.current?.srcObject) {
+        (videoRef.current.srcObject as MediaStream)
+          .getTracks()
+          .forEach((t) => t.stop());
+      }
+    };
+  }, []);
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `camera-${Date.now()}.png`, {
+        type: "image/png",
+      });
+      setImages((prev) => [...prev, file].slice(0, 5));
+    }, "image/png");
+  };
+
+  const removeImage = (i: number) =>
+    setImages((prev) => prev.filter((_, idx) => idx !== i));
+
+  /* ---------- Submit ---------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
-    // Simulate AI validation and submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    // Simulate AI validation
+    await new Promise((r) => setTimeout(r, 2000));
+
     setSubmitting(false);
     setSubmitted(true);
 
-    // Redirect after showing success message
-    setTimeout(() => {
-      navigate('/');
-    }, 3000);
+    setTimeout(() => navigate("/"), 3000);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newImages = Array.from(e.target.files);
-      setImages(prev => [...prev, ...newImages].slice(0, 5)); // Max 5 images
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-  };
-
+  /* ---------- Success Screen ---------- */
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-xl shadow-xl p-8">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Report Submitted Successfully</h2>
-            <p className="text-gray-600 mb-6">
-              Thank you for helping protect our community infrastructure. Your report has been received and is being analyzed by our AI system.
+      <div className="min-h-screen flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full text-center bg-white rounded-xl shadow-xl p-8">
+          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Report Submitted Successfully
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Thank you for helping protect our community infrastructure. Your
+            report is being analyzed by our AI system.
+          </p>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <p className="text-green-800 text-sm">
+              <strong>Reference ID:</strong> RPT-{Date.now().toString().slice(-6)}
             </p>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <p className="text-green-800 text-sm">
-                <strong>Reference ID:</strong> RPT-{Date.now().toString().slice(-6)}
-              </p>
-              <p className="text-green-700 text-sm mt-1">
-                AI validation: <span className="font-semibold">Report verified as legitimate</span>
-              </p>
-            </div>
-            <Link
-              to="/"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-            >
-              Return to Home
-            </Link>
+            <p className="text-green-700 text-sm mt-1">
+              AI validation:{" "}
+              <span className="font-semibold">Report verified as legitimate</span>
+            </p>
           </div>
+          <Link
+            to="/"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            Return to Home
+          </Link>
         </div>
       </div>
     );
   }
 
+  /* ---------- Main Form ---------- */
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 mb-6"
+          >
             <Shield className="h-8 w-8" />
             <span className="text-2xl font-bold">SafeGuard Municipal</span>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Anonymous Report</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            Anonymous Report
+          </h1>
           <p className="text-gray-600">
-            Help us protect our community's infrastructure by reporting incidents anonymously.
+            Help us protect our community's infrastructure by reporting incidents
+            anonymously.
           </p>
         </div>
 
-        {/* Information Panel */}
+        {/* Info Panel */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
           <div className="flex items-start space-x-3">
             <AlertTriangle className="h-6 w-6 text-blue-600 mt-1" />
             <div>
-              <h3 className="font-semibold text-blue-900 mb-2">AI-Powered Report Validation</h3>
+              <h3 className="font-semibold text-blue-900 mb-2">
+                AI-Powered Report Validation
+              </h3>
               <p className="text-blue-800 text-sm">
-                All reports are automatically analyzed by our AI system to verify legitimacy and filter out spam. 
-                Genuine reports are immediately forwarded to the appropriate authorities for action.
+                All reports are analyzed by our AI system to verify legitimacy
+                and filter out spam.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Report Form */}
+        {/* Form */}
         <div className="bg-white shadow-xl rounded-xl p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Incident Type */}
@@ -110,17 +162,17 @@ const AnonymousReport = () => {
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: 'theft', label: 'Theft/Removal', desc: 'Signs, equipment stolen' },
-                  { value: 'vandalism', label: 'Vandalism', desc: 'Graffiti, defacement' },
-                  { value: 'damage', label: 'Damage', desc: 'Physical damage observed' },
-                  { value: 'other', label: 'Other', desc: 'Other infrastructure issues' }
+                  { value: "theft", label: "Theft/Removal", desc: "Signs or equipment stolen" },
+                  { value: "vandalism", label: "Vandalism", desc: "Graffiti or defacement" },
+                  { value: "damage", label: "Damage", desc: "Physical damage observed" },
+                  { value: "other", label: "Other", desc: "Other infrastructure issues" },
                 ].map((type) => (
                   <label
                     key={type.value}
-                    className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                    className={`border-2 rounded-lg p-4 cursor-pointer ${
                       formData.type === type.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <input
@@ -128,7 +180,9 @@ const AnonymousReport = () => {
                       name="type"
                       value={type.value}
                       checked={formData.type === type.value}
-                      onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((p) => ({ ...p, type: e.target.value }))
+                      }
                       className="sr-only"
                       required
                     />
@@ -139,25 +193,7 @@ const AnonymousReport = () => {
               </div>
             </div>
 
-            {/* Location */}
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                Location *
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="location"
-                  type="text"
-                  required
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Street address, intersection, or landmark"
-                />
-              </div>
-            </div>
-
+           
             {/* Priority */}
             <div>
               <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-2">
@@ -166,12 +202,14 @@ const AnonymousReport = () => {
               <select
                 id="priority"
                 value={formData.priority}
-                onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value }))}
-                className="block w-full py-3 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) =>
+                  setFormData((p) => ({ ...p, priority: e.target.value }))
+                }
+                className="block w-full py-3 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="low">Low - Minor issue, no immediate danger</option>
+                <option value="low">Low - Minor issue</option>
                 <option value="medium">Medium - Needs attention soon</option>
-                <option value="high">High - Urgent, potential safety risk</option>
+                <option value="high">High - Urgent, safety risk</option>
               </select>
             </div>
 
@@ -185,48 +223,49 @@ const AnonymousReport = () => {
                 rows={4}
                 required
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                className="block w-full py-3 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) =>
+                  setFormData((p) => ({ ...p, description: e.target.value }))
+                }
+                className="block w-full py-3 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 placeholder="Please provide details about what you observed..."
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Camera Capture */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Photos (Optional)
+                Take a Picture
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="image-upload"
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center space-y-4">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="mx-auto border rounded-lg w-64 h-auto"
                 />
-                <label htmlFor="image-upload" className="cursor-pointer">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">
-                    Click to upload photos (up to 5 images)
-                  </p>
-                </label>
+                <button
+                  type="button"
+                  onClick={capturePhoto}
+                  className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  <Camera className="mr-2 h-4 w-4" /> Take Picture
+                </button>
+                <canvas ref={canvasRef} style={{ display: "none" }} />
               </div>
 
-              {/* Image Preview */}
               {images.length > 0 && (
                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {images.map((image, index) => (
-                    <div key={index} className="relative">
+                  {images.map((img, i) => (
+                    <div key={i} className="relative">
                       <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Upload ${index + 1}`}
+                        src={URL.createObjectURL(img)}
+                        alt={`photo-${i}`}
                         className="w-full h-24 object-cover rounded-lg"
                       />
                       <button
                         type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                        onClick={() => removeImage(i)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
                       >
                         ×
                       </button>
@@ -236,12 +275,12 @@ const AnonymousReport = () => {
               )}
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <div className="pt-4">
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center space-x-2 disabled:opacity-50"
               >
                 {submitting ? (
                   <>
@@ -251,7 +290,7 @@ const AnonymousReport = () => {
                 ) : (
                   <>
                     <Send className="h-5 w-5" />
-                    <span>Submit Anonymous Report</span>
+                    <span>Submit Anonymous Report</span>a
                   </>
                 )}
               </button>
@@ -261,24 +300,10 @@ const AnonymousReport = () => {
           <div className="mt-6 text-center">
             <Link
               to="/"
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
             >
               ← Back to Home
             </Link>
-          </div>
-        </div>
-
-        {/* Privacy Notice */}
-        <div className="mt-8 bg-gray-50 rounded-lg p-4">
-          <div className="flex items-start space-x-3">
-            <Shield className="h-5 w-5 text-gray-600 mt-1" />
-            <div className="text-sm text-gray-700">
-              <p className="font-medium mb-1">Privacy & Security</p>
-              <p>
-                Your report is completely anonymous. No personal information is collected or stored. 
-                All data is encrypted and only used for infrastructure protection purposes.
-              </p>
-            </div>
           </div>
         </div>
       </div>
