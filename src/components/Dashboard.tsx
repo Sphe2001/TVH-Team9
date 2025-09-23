@@ -4,6 +4,8 @@ import { Shield, LogOut, AlertTriangle, CheckCircle, Clock, MapPin, Camera, User
  } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MapView from './MapView';
+import map from "../assets/MainMap.png"
+
 
 interface Incident {
   id: string;
@@ -206,6 +208,11 @@ const Dashboard = () => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="p-6 border-b border-gray-100">
               <h2 className="text-lg font-semibold text-gray-900">Incident Locations</h2>
+
+            </div>
+            <div className='p-2'>
+              
+              <img src={map} alt="map" />
             </div>
             <div className="p-6">
               {/* <MapView incidents={filteredIncidents} /> */}

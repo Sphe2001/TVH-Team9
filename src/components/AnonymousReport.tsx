@@ -290,7 +290,7 @@ const AnonymousReport = () => {
                 ) : (
                   <>
                     <Send className="h-5 w-5" />
-                    <span>Submit Anonymous Report</span>a
+                    <span>Submit Anonymous Report</span>
                   </>
                 )}
               </button>
