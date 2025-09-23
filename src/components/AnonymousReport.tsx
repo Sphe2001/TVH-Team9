@@ -234,7 +234,7 @@ const AnonymousReport = () => {
             {/* Camera Capture */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Take a Picture
+                Take a Picture *
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center space-y-4">
                 <video
